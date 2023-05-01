@@ -6,7 +6,7 @@ from aqt.utils import showInfo, qconnect
 from aqt.qt import *
 
 from anki import decks
-1
+
 class FetchPronunciationWindow(QMainWindow):
      def __init__(self):
         super().__init__()
@@ -42,7 +42,7 @@ class FetchPronunciationWindow(QMainWindow):
         self.setCentralWidget(container)
 
         # When the continue button is clicked, checkAllFieldsEntered is called to make sure all input is valid.
-        continueButton.clicked.connect(checkAllFieldsEntered(userDecksComboBox, whichCardSide, languageInputWidget))
+        continueButton.clicked.connect(lambda: checkAllFieldsEntered(userDecksComboBox, whichCardSide, languageInputWidget, layout))
 
 # INPUT: A widget where the user inputted deckName, cardSide, and languageOfDeck.
 # RETURN: Bool that dictates if the the input is valid.
@@ -50,17 +50,35 @@ class FetchPronunciationWindow(QMainWindow):
 #   Valid input for a deckName is considered non-placeholder-text.
 #   Valid input for cardSide is non-placeholder-text.
 #   Valid input for language is a 2 char string that matches a language.
-def checkAllFieldsEntered(userDecksComboBox: QComboBox, whichCardSide :QComboBox, languageInputWidget:QLineEdit):
+def checkAllFieldsEntered(userDecksComboBox: QComboBox, whichCardSide :QComboBox, languageInputWidget:QLineEdit)-> bool: 
    # TODO: This is erroring and stating that userDecksComboBox is NoneType. Need to figure out how to check the input.
    # Grab the three widgets that the user must input.
-   if False:
-     showInfo(userDecksComboBox.currentText())
-     pass
-   else:
+  inputValid = True
+  if userDecksComboBox.currentText() == "":
+    showInfo("Please select a deck.")
+    inputValid = False
+  if whichCardSide.currentText() == "":
+    showInfo("Please select a side of the deck to modify.")
+    inputValid = False
+  if len(languageInputWidget.text()) != 2:
+    showInfo("Please enter a 2 digit language input for the desired pronouciation.")
+    inputValid = False
+  if inputValid:
     # everything is entered correctly. close the widget and get all pronunciations/
-    showinfo("Please select a deck.")
+    showInfo("All input is valid. We are obtaining pronouciation.")
+
+    # open up the deck and iterate over all cards.
+    for card in deck:
+       fetchPronunciationForCard(card)
     return
-   
+
+# INPUT: A card from a deck.
+# RETURN: Bool that dictates if an error occured fetching the pronouciation.
+# FUNCTIONALITY: This function will contact the forvo api with a word. The function will
+#   then modify the card and update it with the pronouciation, if it exists.
+def fetchPronunciationForCard(card: str, language: str, cardSide: str)-> bool:
+   # contact the forvo api to see if pronouciation exists.
+   pass
 # INPUT: NONE.
 # RETURN: NONE.
 # FUNCTIONALITY: 
