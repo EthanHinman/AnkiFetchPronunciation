@@ -7,6 +7,8 @@ from aqt.qt import *
 
 from anki import decks
 
+#############################################
+# This is your forvo API key. 
 class FetchPronunciationWindow(QMainWindow):
      def __init__(self):
         super().__init__()
@@ -42,7 +44,7 @@ class FetchPronunciationWindow(QMainWindow):
         self.setCentralWidget(container)
 
         # When the continue button is clicked, checkAllFieldsEntered is called to make sure all input is valid.
-        continueButton.clicked.connect(lambda: checkAllFieldsEntered(userDecksComboBox, whichCardSide, languageInputWidget, layout))
+        continueButton.clicked.connect(lambda: checkAllFieldsEntered(userDecksComboBox, whichCardSide, languageInputWidget))
 
 # INPUT: A widget where the user inputted deckName, cardSide, and languageOfDeck.
 # RETURN: Bool that dictates if the the input is valid.
@@ -67,18 +69,23 @@ def checkAllFieldsEntered(userDecksComboBox: QComboBox, whichCardSide :QComboBox
     # everything is entered correctly. close the widget and get all pronunciations/
     showInfo("All input is valid. We are obtaining pronouciation.")
 
-    # open up the deck and iterate over all cards.
-    for card in deck:
-       fetchPronunciationForCard(card)
+    # open up the deck by name and iterate over all cards.
+    deckManagerObject = decks.DeckManager(mw.col)
+    listCardId = deckManagerObject.cids(mw.col.decks.by_name(userDecksComboBox.currentText())['id'])
+    for cardId in listCardId:
+       fetchPronunciationForCard(cardId, languageInputWidget.text().lower(), whichCardSide.currentText() )
     return
 
 # INPUT: A card from a deck.
 # RETURN: Bool that dictates if an error occured fetching the pronouciation.
 # FUNCTIONALITY: This function will contact the forvo api with a word. The function will
-#   then modify the card and update it with the pronouciation, if it exists.
-def fetchPronunciationForCard(card: str, language: str, cardSide: str)-> bool:
-   # contact the forvo api to see if pronouciation exists.
-   pass
+#   then modify the card and update it with the pronouciation, if it exists. Otherwise it will showInfo and return false.
+def fetchPronunciationForCard(cardId: int, language: str, cardSide: str)-> bool:
+  # contact the forvo api to see if pronouciation exists.
+    # if the pronouciation exists, download it and add it to the card. Delete the downloaded pronouciation after it is applied to the card.
+    # if the pronouciation DOES NOT exist, then use showinfo(word) stating that we ran into an error fetching this pronouciation
+  pass
+
 # INPUT: NONE.
 # RETURN: NONE.
 # FUNCTIONALITY: 
