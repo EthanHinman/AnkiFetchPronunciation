@@ -7,6 +7,11 @@ from aqt.qt import *
 
 from anki import decks
 
+from forvoAPIKey import forvoAPIKeyVariable
+
+from anki.collection import Collection
+
+import os
 #############################################
 # This is your forvo API key. 
 class FetchPronunciationWindow(QMainWindow):
@@ -81,7 +86,22 @@ def checkAllFieldsEntered(userDecksComboBox: QComboBox, whichCardSide :QComboBox
 # FUNCTIONALITY: This function will contact the forvo api with a word. The function will
 #   then modify the card and update it with the pronouciation, if it exists. Otherwise it will showInfo and return false.
 def fetchPronunciationForCard(cardId: int, language: str, cardSide: str)-> bool:
-  # contact the forvo api to see if pronouciation exists.
+  # Fetch the word from the side of the card that the user specifies
+  card = mw.col.get_card(cardId)
+  word = ""
+  if cardSide == "Front":
+    word = card.note().items()[0][1]
+    showInfo(str(word))
+  else:
+    word = card.note().items()[1][1]
+    showInfo(str(word))
+  
+  # contact the forvo api to see if a pronouciation exists.
+  # https://api.forvo.com/documentation/standard-pronunciation/
+  formattedRequestString = "https://apifree.forvo.com/key/" + forvoAPIKeyVariable + "/format/json/action/standard-pronunciation/word/" + word + "/language/" + language
+  # showInfo(formattedRequestString)
+  # audioLink = requests.get(formattedRequestString)
+
     # if the pronouciation exists, download it and add it to the card. Delete the downloaded pronouciation after it is applied to the card.
     # if the pronouciation DOES NOT exist, then use showinfo(word) stating that we ran into an error fetching this pronouciation
   pass
