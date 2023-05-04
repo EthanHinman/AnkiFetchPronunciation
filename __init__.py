@@ -6,7 +6,7 @@ from aqt.utils import showInfo, qconnect
 from aqt.qt import *
 
 from anki import decks
-
+from anki import media 
 from pathlib import Path
 
 ##############################################################
@@ -109,32 +109,41 @@ def fetchPronunciationForCard(cardId: int, language: str, cardSide: str)-> bool:
   # showInfo(formattedRequestString)
   # formattedRequestString = "temp"
   #################################################################
-  audioLinkJson = True#requests.get(formattedRequestString)
+  audioLinkJson = requests.get(formattedRequestString)
   #################################################################
   if audioLinkJson:
     # showInfo(str(audioLinkJson.json()))
-    #audioLink = audioLinkJson.json()["items"][0]["pathmp3"]
+    audioLink = audioLinkJson.json()["items"][0]["pathmp3"]
     audioMP3 = "https://apifree.forvo.com/audio/2p2m1l2q212h35242d1f3e3p2d2i2j3j1l343f3q1b2d2o3q2m222m2a32283l3k392l22293h31273f353h2q3c1n2e2f223k1j1f3e3q273f323i3c3n1k39272i1k2g1j261f1f3o3l3l271b2k3j3h3l363l2a3h1j3k2i2h1t1t_1m3o2d2d3p2j381h3f3e3d1f2f3e3d343f2b3k1m3k211t1t"#requests.get(audioLink) # now get the audio file
+    r = requests.get(audioLink)
+    statuscode = str(r.status_code)
+    showInfo(statuscode)
+    filename = word + ".mp3"
+    mediamanager = media.MediaManager(mw.col, False)
+    filename = mediamanager.write_data(filename, r.content)
+    r.close()
     # open a file in audioFiles
-    filePath = Path("/home/ankiMP3/" + word + ".mp3")
-    filePath.touch(exist_ok=True, parents=True)
-    file= open(filePath, 'w')
+    #filePath = Path("/home/ankiMP3/" + word + ".mp3")
+    #filePath.touch(exist_ok=True, parents=True)
+    #file= open(filePath, 'w')
     # sound:https://apifree.forvo.com/audio/2p2m1l2q212h35242d1f3e3p2d2i2j3j1l343f3q1b2d2o3q2m222m2a32283l3k392l22293h31273f353h2q3c1n2e2f223k1j1f3e3q273f323i3c3n1k39272i1k2g1j261f1f3o3l3l271b2k3j3h3l363l2a3h1j3k2i2h1t1t_1m3o2d2d3p2j381h3f3e3d1f2f3e3d343f2b3k1m3k211t1t
     # write audioMP3 to it if it exists
-    file.write(audioMP3)
+    #file.write(audioMP3)
     # get path of th
     # card.pronunciation = audio
     # showInfo(str(audioMP3.json()))
     # card.note().__setitem__(cardId, "TEMP")
     if cardSide == "Front":
-      card.note().__setitem__("Front", card.note().items()[0][1] + "[sound:" + audioLink +"]")
-      showInfo(card.note().items()[0][1])
+      card.note().__setitem__("Front", card.note().items()[0][1] + "[sound:" + filename +"]")
+      #showInfo(card.note().items()[0][1])
       mw.col.update_note(card.note())
+      pass
     else:
-      card.note().__setitem__("Back", card.note().items()[0][1] + "[sound:" + 96 +"]")
-      showInfo(card.note().items()[1][1])
+      card.note().__setitem__("Back", card.note().items()[0][1] + "[sound:" + filename +"]")
+      # showInfo(card.note().items()[1][1])
       mw.col.update_note(card.note())
-    # showInfo(card.note().items()[0][1])
+      # showInfo(card.note().items()[0][1])
+      pass
   else:
     showInfo(f"No standard pronunciation exists for {word}")
 
